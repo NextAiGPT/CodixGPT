@@ -244,7 +244,7 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
 
   bot.start(ctx => ctx.reply(
 `Hello! 👋 Welcome to CodixGPT.
-
+Thanks for using CodixGPT.
 Developer tools are ready. Choose a command:
 
 Commands:
@@ -257,17 +257,50 @@ Commands:
 - HTML meta tags: /meta
 - HTML text tags: /htmlt
 - HTML prototype: /html
-- HTML minifier: /minihtml`
+- HTML minifier: /minihtml
+- Support: /support`
   ));
 
   bot.command("uripic", ctx => {
     sessions.set(ctx.from.id, "uripic");
-    ctx.reply("Please send the image you want to convert to a Base64 data URI.");
+    ctx.reply(
+`Please send the image you want to convert to a Base64 data URI.
+⚠️ File size must be under 10MB.`
+    );
   });
+
+  bot.command("commands", ctx => {
+    sessions.set(ctx.from.id, "commands");
+    ctx.reply(
+`Commands:
+- Image to Base64: /uripic
+- Image to HEX: /hex
+- CSS minifier: /minicss
+- JS minifier: /minijs
+- Password generator: /pass
+- Search GitHub repository: /repos
+- HTML meta tags: /meta
+- HTML text tags: /htmlt
+- HTML prototype: /html
+- HTML minifier: /minihtml
+- Support: /support`
+  );
+  });
+
+  bot.command("support", ctx => {
+    sessions.set(ctx.from.id, "support");
+    ctx.reply(`
+You can contact @IliaSharifi2015`
+  );
+  });
+
 
   bot.command("hex", ctx => {
     sessions.set(ctx.from.id, "hex");
-    ctx.reply("Please send the image you want me to extract colors from.");
+    ctx.reply(
+`Please send the image you want me to extract colors from.
+⚠️ File size must be under 10MB.`
+    );
   });
 
   bot.command("minicss", ctx => {
@@ -339,6 +372,74 @@ Commands:
       ctx.reply("Sorry, I could not process that image.");
     }
   });
+
+  const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+bot.on("photo", async ctx => {
+  const mode = sessions.get(ctx.from.id);
+
+  if (!mode) {
+    return ctx.reply("Please choose a tool command first.");
+  }
+
+  try {
+    const photos = ctx.message.photo;
+    const largestPhoto = photos[photos.length - 1];
+
+    const file = await ctx.telegram.getFile(largestPhoto.file_id);
+
+    const url = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${file.file_path}`;
+
+    const response = await axios.get(url, {
+      responseType: "arraybuffer"
+    });
+
+    const buffer = Buffer.from(response.data);
+
+    // Check image size
+    if (buffer.length > MAX_IMAGE_SIZE) {
+      sessions.delete(ctx.from.id);
+
+      return ctx.reply(
+        "⚠️ This image is too large.\n\n" +
+        "Maximum supported size is 10 MB.\n" +
+        "Please send an image smaller than 10 MB."
+      );
+    }
+
+    if (mode === "uripic") {
+      const mime = file.file_path.toLowerCase().endsWith(".png")
+        ? "image/png"
+        : "image/jpeg";
+
+      const result = await imageToBase64(buffer, mime);
+
+      await ctx.reply(
+        `Base64 data URI:\n\n${result}`,
+        {
+          disable_web_page_preview: true
+        }
+      );
+    }
+
+    else if (mode === "hex") {
+      const colors = await extractColors(buffer);
+
+      await ctx.reply(
+        `Extracted colors:\n\n${colors.join("\n")}`
+      );
+    }
+
+    sessions.delete(ctx.from.id);
+
+  } catch (error) {
+    console.error(error);
+
+    ctx.reply(
+      "❌ Sorry, I could not process that image."
+    );
+  }
+});
 
   bot.on("text", async ctx => {
     const mode = sessions.get(ctx.from.id);
