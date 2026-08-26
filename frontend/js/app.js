@@ -1,7 +1,6 @@
 // Set this to your deployed Render URL, for example:
 // const API = "https://codixgpt-api.onrender.com";
 const API = window.CODIXGPT_API || "http://localhost:10000";
-
 async function request(path, options={}) {
   const r = await fetch(API + path, {headers: {"Content-Type":"application/json"}, ...options});
   const data = await r.json();
