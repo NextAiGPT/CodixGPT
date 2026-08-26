@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CodixGPT — developer tools for the web and Telegram.">
+  <title>CodixGPT — Developer Toolkit</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="nav">
+    <div class="brand"><span class="brand-mark">C</span><span>CodixGPT</span></div>
+    <a class="github" href="https://github.com" target="_blank" rel="noreferrer">GitHub ↗</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">DEVELOPER TOOLKIT</div>
+      <h1>Code faster.<br><span>Build smarter.</span></h1>
+      <p>Useful programming utilities, available from one clean web app — and through the CodixGPT Telegram bot.</p>
+      <div class="hero-actions">
+        <a href="#tools" class="primary">Explore tools</a>
+        <a href="#github" class="secondary">Search GitHub</a>
+      </div>
+      <div class="status"><span></span> CodixGPT API ready</div>
+    </section>
+
+    <section id="tools" class="section">
+      <div class="section-title">
+        <div><div class="eyebrow">TOOLBOX</div><h2>Everything you need.</h2></div>
+        <p>Pick a tool and let CodixGPT handle the boring parts.</p>
+      </div>
+
+      <div class="grid">
+        <article class="tool-card">
+          <div class="icon">{} </div><h3>CSS Minifier</h3><p>Compress CSS into a compact output.</p>
+          <textarea id="cssInput" placeholder="Paste CSS here..."></textarea>
+          <button onclick="minify('css')">Minify CSS</button><pre id="cssOutput"></pre>
+        </article>
+
+        <article class="tool-card">
+          <div class="icon">JS</div><h3>JS Minifier</h3><p>Compact JavaScript while preserving strings.</p>
+          <textarea id="jsInput" placeholder="Paste JavaScript here..."></textarea>
+          <button onclick="minify('js')">Minify JS</button><pre id="jsOutput"></pre>
+        </article>
+
+        <article class="tool-card">
+          <div class="icon">&lt;/&gt;</div><h3>HTML Minifier</h3><p>Remove comments and unnecessary whitespace.</p>
+          <textarea id="htmlInput" placeholder="Paste HTML here..."></textarea>
+          <button onclick="minify('html')">Minify HTML</button><pre id="htmlOutput"></pre>
+        </article>
+
+        <article class="tool-card">
+          <div class="icon">Aa</div><h3>Password Generator</h3><p>Generate an 18-character letters-only password.</p>
+          <button onclick="generatePassword()">Generate password</button>
+          <pre id="passwordOutput"></pre>
+        </article>
+
+        <article class="tool-card wide" id="github">
+          <div class="icon">GH</div><h3>GitHub Repository Search</h3><p>Search public GitHub repositories through the API.</p>
+          <div class="search-row"><input id="repoQuery" placeholder="e.g. node telegram bot"><button onclick="searchRepos()">Search</button></div>
+          <div id="repoOutput" class="results"></div>
+        </article>
+
+        <article class="tool-card">
+          <div class="icon">HTML</div><h3>HTML Prototype</h3><p>Start a clean HTML document instantly.</p>
+          <button onclick="loadPrototype()">Get prototype</button><pre id="prototypeOutput"></pre>
+        </article>
+
+        <article class="tool-card">
+          <div class="icon">META</div><h3>HTML Meta Tags</h3><p>Reference common HTML metadata tags.</p>
+          <button onclick="loadList('/api/html/meta','metaOutput')">View tags</button>
+          <div id="metaOutput" class="list"></div>
+        </article>
+
+        <article class="tool-card">
+          <div class="icon">TXT</div><h3>HTML Text Tags</h3><p>Quick reference for common text elements.</p>
+          <button onclick="loadList('/api/html/text-tags','textOutput')">View tags</button>
+          <div id="textOutput" class="list"></div>
+        </article>
+
+        <article class="tool-card wide">
+          <div class="icon">IMG</div><h3>Image Tools</h3><p>Convert an image to a Base64 Data URI or extract dominant HEX colors.</p>
+          <input id="imageInput" type="file" accept="image/*">
+          <div class="image-actions"><button onclick="imageBase64()">Image → Base64</button><button onclick="imageColors()">Image → HEX</button></div>
+          <pre id="imageOutput"></pre>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>© 2026 CodixGPT · Built for developers</footer>
+  <script src="js/app.js"></script>
+</body>
+</html>
