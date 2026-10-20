@@ -1,95 +1,801 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="CodixGPT — developer tools for the web and Telegram.">
-  <title>CodixGPT — Developer Toolkit</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodixGPT</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card-bg: #161b22;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.35);
+            --success: #3fb950;
+            --success-glow: rgba(63, 185, 80, 0.4);
+            --danger: #f85149;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Vazirmatn', 'Inter', 'Tahoma', sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 30% 20%, rgba(88, 166, 255, 0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 70% 60%, rgba(63, 185, 80, 0.04) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 80%, rgba(139, 148, 158, 0.03) 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            direction: ltr;
+            padding: 20px;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Floating background particles */
+        .bg-particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.07;
+            animation: floatUp linear infinite;
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(0.6);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.08;
+            }
+            80% {
+                opacity: 0.03;
+            }
+            100% {
+                transform: translateY(-110vh) scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px 32px 28px;
+            box-shadow:
+                0 8px 40px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+                0 1px 0 rgba(255, 255, 255, 0.02) inset;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: box-shadow var(--transition), border-color var(--transition);
+        }
+        .container:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 12px 50px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+                0 1px 0 rgba(255, 255, 255, 0.03) inset;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .header-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.2);
+            margin-bottom: 14px;
+            font-size: 26px;
+            transition: all var(--transition);
+        }
+        .header-icon svg {
+            width: 26px;
+            height: 26px;
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* UUID Display Box */
+        .uuid-display-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .uuid-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #0d1117;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-sm);
+            padding: 18px 16px;
+            cursor: pointer;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+            min-height: 64px;
+            word-break: break-all;
+            text-align: center;
+        }
+        .uuid-display:hover {
+            border-color: var(--accent);
+            background: #111820;
+            box-shadow: 0 0 24px var(--accent-glow);
+        }
+        .uuid-display:active {
+            transform: scale(0.985);
+            border-color: var(--success);
+            box-shadow: 0 0 28px var(--success-glow);
+            transition: all 0.08s ease;
+        }
+        .uuid-display.copied {
+            border-color: var(--success) !important;
+            border-style: solid !important;
+            box-shadow: 0 0 30px var(--success-glow) !important;
+            background: rgba(63, 185, 80, 0.04) !important;
+            animation: copiedPulse 0.5s ease-out;
+        }
+        @keyframes copiedPulse {
+            0% {
+                box-shadow: 0 0 0 var(--success-glow);
+            }
+            60% {
+                box-shadow: 0 0 40px var(--success-glow);
+            }
+            100% {
+                box-shadow: 0 0 18px var(--success-glow);
+            }
+        }
+        .uuid-text {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', 'Consolas', monospace;
+            font-size: 1.05rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            color: #c9d1d9;
+            transition: color var(--transition);
+            line-height: 1.5;
+            pointer-events: none;
+            position: relative;
+            z-index: 1;
+        }
+        .uuid-display.copied .uuid-text {
+            color: var(--success);
+        }
+        .copy-icon-overlay {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity var(--transition);
+            pointer-events: none;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #fff;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .uuid-display:hover .copy-icon-overlay {
+            opacity: 1;
+        }
+        .copy-icon-overlay svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        /* Toast / Feedback */
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            background: #1a2028;
+            border: 1px solid var(--success);
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--success-glow);
+            white-space: nowrap;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .toast svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            stroke: var(--success);
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Buttons */
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 22px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all var(--transition);
+            outline: none;
+            font-family: inherit;
+            white-space: nowrap;
+            letter-spacing: -0.01em;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            background: #4c9ae8;
+            box-shadow: 0 6px 22px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+        .btn-primary:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px var(--accent-glow);
+            transition: all 0.08s ease;
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border-color: var(--border);
+        }
+        .btn-outline:hover {
+            border-color: #8b949e;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .btn-outline:active {
+            scale: 0.96;
+        }
+        .btn svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Ripple */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: rippleEffect 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* History */
+        .history-section {
+            margin-top: 22px;
+            border-top: 1px solid var(--border);
+            padding-top: 18px;
+        }
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .history-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .history-clear {
+            font-size: 0.75rem;
+            color: var(--danger);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            opacity: 0.7;
+            transition: opacity var(--transition);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .history-clear:hover {
+            opacity: 1;
+            background: rgba(248, 81, 73, 0.1);
+        }
+        .history-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+        .history-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .history-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+        .history-item {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.78rem;
+            color: #8b949e;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all var(--transition);
+            border: 1px solid transparent;
+            word-break: break-all;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.01);
+        }
+        .history-item:hover {
+            color: #c9d1d9;
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--border);
+        }
+        .history-item:active {
+            background: rgba(88, 166, 255, 0.08);
+            color: var(--accent);
+        }
+        .history-empty {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 12px;
+            opacity: 0.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px 16px 20px;
+                border-radius: var(--radius-sm);
+            }
+            .uuid-text {
+                font-size: 0.82rem;
+                letter-spacing: 0.01em;
+            }
+            .uuid-display {
+                padding: 14px 10px;
+                min-height: 54px;
+            }
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.8rem;
+            }
+            h1 {
+                font-size: 1.25rem;
+            }
+            .copy-icon-overlay {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header class="nav">
-    <div class="brand"><span class="brand-mark">C</span><span>CodixGPT</span></div>
-    <a class="github" href="https://github.com" target="_blank" rel="noreferrer">GitHub ↗</a>
-  </header>
 
-  <main>
-    <section class="hero">
-      <div class="eyebrow">DEVELOPER TOOLKIT</div>
-      <h1>Code faster.<br><span>Build smarter.</span></h1>
-      <p>Useful programming utilities, available from one clean web app — and through the CodixGPT Telegram bot.</p>
-      <div class="hero-actions">
-        <a href="#tools" class="primary">Explore tools</a>
-        <a href="#github" class="secondary">Search GitHub</a>
-      </div>
-      <div class="status"><span></span> CodixGPT API ready</div>
-    </section>
+    <!-- Floating background particles -->
+    <div class="bg-particles" id="bgParticles"></div>
 
-    <section id="tools" class="section">
-      <div class="section-title">
-        <div><div class="eyebrow">TOOLBOX</div><h2>Everything you need.</h2></div>
-        <p>Pick a tool and let CodixGPT handle the boring parts.</p>
-      </div>
+    <!-- Toast notification -->
+    <div class="toast" id="toast">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>کپی شد ✓</span>
+    </div>
 
-      <div class="grid">
-        <article class="tool-card">
-          <div class="icon">{} </div><h3>CSS Minifier</h3><p>Compress CSS into a compact output.</p>
-          <textarea id="cssInput" placeholder="Paste CSS here..."></textarea>
-          <button onclick="minify('css')">Minify CSS</button><pre id="cssOutput"></pre>
-        </article>
+    <!-- Main Card -->
+    <main class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>CodixGPT</h1><br>
+            <p class="subtitle">Bot is in beta mode<br>
+            ©2026, <a style="color: white;" href="https://GitHub.com/iliasharifi2015">IliaSharifi2015</a> on github</p>
+        </div>
 
-        <article class="tool-card">
-          <div class="icon">JS</div><h3>JS Minifier</h3><p>Compact JavaScript while preserving strings.</p>
-          <textarea id="jsInput" placeholder="Paste JavaScript here..."></textarea>
-          <button onclick="minify('js')">Minify JS</button><pre id="jsOutput"></pre>
-        </article>
+            </main>
 
-        <article class="tool-card">
-          <div class="icon">&lt;/&gt;</div><h3>HTML Minifier</h3><p>Remove comments and unnecessary whitespace.</p>
-          <textarea id="htmlInput" placeholder="Paste HTML here..."></textarea>
-          <button onclick="minify('html')">Minify HTML</button><pre id="htmlOutput"></pre>
-        </article>
+    <script>
+        (function() {
+            // ──────────────────────────────────────
+            // DOM Elements
+            // ──────────────────────────────────────
+            const uuidDisplay = document.getElementById('uuidDisplay');
+            const uuidText = document.getElementById('uuidText');
+            const copyOverlay = document.getElementById('copyOverlay');
+            const btnGenerate = document.getElementById('btnGenerate');
+            const btnCopyCurrent = document.getElementById('btnCopyCurrent');
+            const btnClearHistory = document.getElementById('btnClearHistory');
+            const historyList = document.getElementById('historyList');
+            const toast = document.getElementById('toast');
+            const bgParticlesContainer = document.getElementById('bgParticles');
 
-        <article class="tool-card">
-          <div class="icon">Aa</div><h3>Password Generator</h3><p>Generate an 18-character letters-only password.</p>
-          <button onclick="generatePassword()">Generate password</button>
-          <pre id="passwordOutput"></pre>
-        </article>
+            // ──────────────────────────────────────
+            // State
+            // ──────────────────────────────────────
+            let currentUUID = null;
+            let history = [];
+            const MAX_HISTORY = 15;
+            let toastTimer = null;
+            let copyCooldown = false;
 
-        <article class="tool-card wide" id="github">
-          <div class="icon">GH</div><h3>GitHub Repository Search</h3><p>Search public GitHub repositories through the API.</p>
-          <div class="search-row"><input id="repoQuery" placeholder="e.g. node telegram bot"><button onclick="searchRepos()">Search</button></div>
-          <div id="repoOutput" class="results"></div>
-        </article>
+            // ──────────────────────────────────────
+            // Background particles
+            // ──────────────────────────────────────
+            function createParticles() {
+                const count = 18;
+                const fragment = document.createDocumentFragment();
+                for (let i = 0; i < count; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('bg-particle');
+                    const size = Math.random() * 50 + 20;
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = (100 + Math.random() * 40) + '%';
+                    particle.style.animationDuration = (Math.random() * 18 + 14) + 's';
+                    particle.style.animationDelay = (Math.random() * 15) + 's';
+                    particle.style.opacity = (Math.random() * 0.05 + 0.02);
+                    fragment.appendChild(particle);
+                }
+                bgParticlesContainer.appendChild(fragment);
+            }
+            createParticles();
 
-        <article class="tool-card">
-          <div class="icon">HTML</div><h3>HTML Prototype</h3><p>Start a clean HTML document instantly.</p>
-          <button onclick="loadPrototype()">Get prototype</button><pre id="prototypeOutput"></pre>
-        </article>
+            // ──────────────────────────────────────
+            // UUID Generator (crypto-based, v4)
+            // ──────────────────────────────────────
+            function generateUUID() {
+                // Use crypto.randomUUID() if available (modern browsers)
+                if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+                    return crypto.randomUUID();
+                }
+                // Fallback: RFC 4122 version 4 UUID
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = (crypto.getRandomValues(new Uint8Array(1))[0] & 15) >> (c === 'x' ? 0 : 0);
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
 
-        <article class="tool-card">
-          <div class="icon">META</div><h3>HTML Meta Tags</h3><p>Reference common HTML metadata tags.</p>
-          <button onclick="loadList('/api/html/meta','metaOutput')">View tags</button>
-          <div id="metaOutput" class="list"></div>
-        </article>
+            // ──────────────────────────────────────
+            // Copy to clipboard
+            // ──────────────────────────────────────
+            async function copyToClipboard(text) {
+                if (copyCooldown) return;
+                copyCooldown = true;
+                try {
+                    // Modern async clipboard API
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                    } else {
+                        // Fallback for older browsers
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        textarea.style.pointerEvents = 'none';
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        textarea.setSelectionRange(0, 99999);
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                    }
+                    showCopiedFeedback();
+                } catch (err) {
+                    console.warn('Copy failed, trying fallback:', err);
+                    // Ultimate fallback
+                    try {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        showCopiedFeedback();
+                    } catch (e) {
+                        alert('نتوانست کپی کند. لطفاً دستی کپی کنید:\n' + text);
+                    }
+                }
+                // Cooldown to prevent rapid-fire copies
+                setTimeout(() => { copyCooldown = false; }, 400);
+            }
 
-        <article class="tool-card">
-          <div class="icon">TXT</div><h3>HTML Text Tags</h3><p>Quick reference for common text elements.</p>
-          <button onclick="loadList('/api/html/text-tags','textOutput')">View tags</button>
-          <div id="textOutput" class="list"></div>
-        </article>
+            // ──────────────────────────────────────
+            // Feedback: toast + display animation
+            // ──────────────────────────────────────
+            function showCopiedFeedback() {
+                // Toast
+                if (toastTimer) clearTimeout(toastTimer);
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 1800);
 
-        <article class="tool-card wide">
-          <div class="icon">IMG</div><h3>Image Tools</h3><p>Convert an image to a Base64 Data URI or extract dominant HEX colors.</p>
-          <input id="imageInput" type="file" accept="image/*">
-          <div class="image-actions"><button onclick="imageBase64()">Image → Base64</button><button onclick="imageColors()">Image → HEX</button></div>
-          <pre id="imageOutput"></pre>
-        </article>
-      </div>
-    </section>
-  </main>
+                // Display animation
+                uuidDisplay.classList.add('copied');
+                setTimeout(() => {
+                    uuidDisplay.classList.remove('copied');
+                }, 700);
+            }
 
-  <footer>© 2026 CodixGPT · Built for developers</footer>
-  <script src="js/app.js"></script>
+            // ──────────────────────────────────────
+            // Ripple effect on buttons
+            // ──────────────────────────────────────
+            function addRipple(e) {
+                const btn = e.currentTarget;
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                btn.appendChild(ripple);
+                ripple.addEventListener('animationend', () => ripple.remove());
+            }
+
+            // ──────────────────────────────────────
+            // Update UUID display
+            // ──────────────────────────────────────
+            function setUUID(uuid) {
+                currentUUID = uuid;
+                uuidText.textContent = uuid;
+                // Add to history (prepend, remove duplicates, limit)
+                history = [uuid, ...history.filter(h => h !== uuid)].slice(0, MAX_HISTORY);
+                renderHistory();
+                // Save to localStorage
+                saveHistory();
+            }
+
+            // ──────────────────────────────────────
+            // Render history list
+            // ──────────────────────────────────────
+            function renderHistory() {
+                historyList.innerHTML = '';
+                if (history.length === 0) {
+                    const li = document.createElement('li');
+                    li.classList.add('history-empty');
+                    li.textContent = 'هنوز UUIDای تولید نشده...';
+                    historyList.appendChild(li);
+                    return;
+                }
+                history.forEach(uuid => {
+                    const li = document.createElement('li');
+                    li.classList.add('history-item');
+                    li.textContent = uuid;
+                    li.title = 'کلیک کن تا کپی شود و به بالا منتقل شود';
+                    li.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        setUUID(uuid);
+                        copyToClipboard(uuid);
+                        // Scroll display into view
+                        uuidDisplay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Brief highlight
+                        uuidDisplay.classList.add('copied');
+                        setTimeout(() => uuidDisplay.classList.remove('copied'), 500);
+                    });
+                    historyList.appendChild(li);
+                });
+            }
+
+            // ──────────────────────────────────────
+            // localStorage persistence
+            // ──────────────────────────────────────
+            function saveHistory() {
+                try {
+                    localStorage.setItem('uuid_generator_history', JSON.stringify(history));
+                } catch (e) {
+                    // localStorage full or unavailable — ignore
+                }
+            }
+
+            function loadHistory() {
+                try {
+                    const stored = localStorage.getItem('uuid_generator_history');
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            history = parsed.slice(0, MAX_HISTORY);
+                            // Set the most recent as current
+                            currentUUID = history[0];
+                            uuidText.textContent = currentUUID;
+                            renderHistory();
+                            return true;
+                        }
+                    }
+                } catch (e) {
+                    // ignore parse errors
+                }
+                return false;
+            }
+
+            // ──────────────────────────────────────
+            // Generate new UUID action
+            // ──────────────────────────────────────
+            function actionGenerate() {
+                const newUUID = generateUUID();
+                setUUID(newUUID);
+                // Auto-copy on generate for better UX
+                copyToClipboard(newUUID);
+                // Scroll to display
+                uuidDisplay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // ──────────────────────────────────────
+            // Event Listeners
+            // ──────────────────────────────────────
+            uuidDisplay.addEventListener('click', () => {
+                if (currentUUID) {
+                    copyToClipboard(currentUUID);
+                } else {
+                    // No UUID yet, generate one
+                    actionGenerate();
+                }
+            });
+
+            btnGenerate.addEventListener('click', (e) => {
+                addRipple(e);
+                actionGenerate();
+            });
+
+            btnCopyCurrent.addEventListener('click', (e) => {
+                addRipple(e);
+                if (currentUUID) {
+                    copyToClipboard(currentUUID);
+                } else {
+                    actionGenerate();
+                }
+            });
+
+            btnClearHistory.addEventListener('click', () => {
+                history = [];
+                currentUUID = null;
+                uuidText.textContent = 'آمادهٔ تولید...';
+                renderHistory();
+                saveHistory();
+                // small feedback
+                btnClearHistory.style.opacity = '0.5';
+                setTimeout(() => { btnClearHistory.style.opacity = ''; }, 200);
+            });
+
+            // Keyboard shortcut: Ctrl+G or Ctrl+Enter to generate
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && (e.key === 'g' || e.key === 'G' || e.key === 'Enter')) {
+                    e.preventDefault();
+                    actionGenerate();
+                }
+                // Ctrl+C when focus is on the display area
+                if ((e.ctrlKey || e.metaKey) && e.key === 'c' && document.activeElement === document.body) {
+                    if (currentUUID && uuidDisplay.matches(':hover')) {
+                        // Already handled by click, but just in case
+                        copyToClipboard(currentUUID);
+                    }
+                }
+            });
+
+            // ──────────────────────────────────────
+            // Initialize
+            // ──────────────────────────────────────
+            function init() {
+                const loaded = loadHistory();
+                if (!loaded) {
+                    // Generate a fresh UUID on first visit
+                    const freshUUID = generateUUID();
+                    setUUID(freshUUID);
+                }
+            }
+
+            init();
+
+            // Log info
+            console.log('%c🔑 UUID Generator Ready %c| %cکاملاً یکتا و منحصربه‌فرد %c| %cCtrl+G برای تولید سریع',
+                'color:#58a6ff;font-weight:bold;',
+                '',
+                'color:#3fb950;',
+                '',
+                'color:#8b949e;font-style:italic;');
+            console.log('%c💡 روی متن UUID بزن تا کپی شود — هر UUID برای هر نفر منحصربه‌فرد است.',
+                'color:#c9d1d9;');
+        })();
+    </script>
 </body>
 </html>
